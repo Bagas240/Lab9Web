@@ -8,87 +8,10 @@
 
 # Praktikum 9: PHP Modular (`Lab9Web`)
 
-## 1. Tujuan Project
-Project `Lab9Web` ini dibuat untuk menerapkan konsep **modularisasi program PHP**, yaitu memisahkan bagian-bagian aplikasi ke dalam file dan direktori terpisah berdasarkan fungsi dan tanggung jawabnya:
-1. Memisahkan komponen tampilan bersama (`header.php` dan `footer.php`) dari konten masing-masing halaman.
-2. Memahami perbedaan penggunaan `include`, `require`, `include_once`, dan `require_once` beserta konstanta `__DIR__`.
-3. Mengelompokkan fungsi umum yang dapat digunakan ulang ke dalam file helper (`helpers/functions.php`).
-4. Menata struktur direktori aplikasi secara modular (`config/`, `views/`, `helpers/`, `modules/`, `assets/`).
-5. Menerapkan routing berbasis parameter URL (`index.php?page=...`) dengan validasi *whitelist* dan halaman `404.php`.
-6. Mengintegrasikan aplikasi database CRUD (`data_barang`) dari Praktikum 8 ke dalam struktur modular, termasuk tantangan mandiri (active navigation, pesan flash sukses/gagal, pembatasan akses login, dan URL rewrite `.htaccess`).
 
 ---
 
-## 2. Kebutuhan Perangkat
-- **Web Server Lokal**: Apache (melalui XAMPP atau Laragon) dengan modul `mod_rewrite` aktif untuk menjalankan aturan `.htaccess`.
-- **PHP**: PHP 8.x (atau PHP 7.4+) dengan ekstensi `mysqli` dan dukungan `session` aktif.
-- **Database**: MySQL / MariaDB (`latihan1` dengan tabel `data_barang` dari Praktikum 8).
-- **Browser & Editor**: Google Chrome / Microsoft Edge / Firefox dan Visual Studio Code.
-
----
-
-## 3. Cara Menjalankan Aplikasi
-1. Letakkan seluruh folder project ke dalam direktori docroot web server lokal, misalnya:
-   - XAMPP: `C:\xampp\htdocs\Lab9Web`
-   - Laragon: `C:\laragon\www\Lab9Web`
-2. Jalankan service **Apache** dan **MySQL** pada panel kontrol XAMPP/Laragon.
-3. Pastikan database `latihan1` dan tabel `data_barang` sudah tersedia di MySQL (sesuai konfigurasi pada `config/database.php`).
-4. Akses latihan awal (`lab9_php_modular/`) melalui browser:
-   - Uji `include`: `http://localhost/Lab9Web/lab9_php_modular/uji-include.php`
-   - Latihan template multi-halaman: `http://localhost/Lab9Web/lab9_php_modular/home.php`
-   - Latihan pemanggilan helper: `http://localhost/Lab9Web/lab9_php_modular/contoh-panggil.php`
-5. Akses aplikasi modular utama melalui browser:
-   - `http://localhost/Lab9Web/index.php` (otomatis memuat rute `dashboard`)
-   - Atau dengan URL ringkas (jika `.htaccess` aktif): `http://localhost/Lab9Web/dashboard`
-6. Untuk mengakses menu CRUD (`Data Barang` dan `Tambah Barang`), login terlebih dahulu melalui menu **Login** (`index.php?page=auth/login`) menggunakan akun `admin` / `admin123`.
-
----
-
-## 4. Struktur Direktori dan Penjelasan Tanggung Jawab
-```
-Lab9Web/
-├── index.php                  # Titik masuk aplikasi (entry point) dan router whitelist
-├── .htaccess                  # Aturan URL rewrite Apache agar URL lebih ringkas
-├── README.md                  # Dokumentasi praktikum
-├── config/
-│   └── database.php           # Konfigurasi koneksi database MySQLi
-├── views/
-│   ├── header.php             # Template awal HTML, judul, dan navigasi (menu aktif)
-│   ├── footer.php             # Template penutup halaman dan copyright tahun berjalan
-│   ├── dashboard.php          # Konten halaman dashboard/beranda
-│   └── 404.php                # Tampilan error saat rute tidak terdaftar di whitelist
-├── helpers/
-│   └── functions.php          # Kumpulan function umum (format, escaping, validasi, flash, auth)
-├── modules/
-│   ├── user/
-│   │   ├── list.php           # Menampilkan daftar data_barang (Read)
-│   │   ├── add.php            # Form dan proses tambah data_barang (Create)
-│   │   ├── edit.php           # Form dan proses ubah data_barang (Update)
-│   │   └── delete.php         # Proses hapus data_barang via POST (Delete)
-│   └── auth/
-│       ├── login.php          # Form dan proses autentikasi login berbasis session
-│       └── logout.php         # Proses keluar sesi dan redirect ke halaman login
-├── assets/
-│   ├── css/
-│   │   └── style.css          # Stylesheet bersama untuk layout, navigasi aktif, dan alert flash
-│   └── js/                    # Direktori aset JavaScript
-└── lab9_php_modular/          # Folder latihan bertahap (Bagian C, D, E, dan Latihan 1)
-    ├── pesan.php              # File sederhana untuk diuji dengan include/require
-    ├── uji-include.php        # Pengujian perilaku include vs require
-    ├── header.php             # Template header latihan awal
-    ├── footer.php             # Template footer latihan awal
-    ├── home.php               # Halaman Home latihan template & function
-    ├── about.php              # Halaman Tentang latihan template & function
-    ├── profil.php             # Halaman Profil (Latihan 1)
-    ├── kontak.php             # Halaman Kontak (Latihan 1)
-    ├── style.css              # Stylesheet latihan awal
-    ├── helpers.php            # File helper latihan function (Bagian E)
-    └── contoh-panggil.php     # Contoh pemanggilan formatRupiah() dan e()
-```
-
----
-
-## 5. Daftar Rute Aplikasi
+## Daftar Rute Aplikasi
 Router utama di `index.php` membaca parameter `$_GET['page']` (default `'dashboard'`) dan mencocokkannya dengan array whitelist `$routes`:
 
 | Parameter `page` | URL Rewrite (`.htaccess`) | File Modul / View | Status Akses | Keterangan |
@@ -104,7 +27,7 @@ Router utama di `index.php` membaca parameter `$_GET['page']` (default `'dashboa
 
 ---
 
-## 6. Penjelasan Setiap Bagian & Langkah Praktikum
+## Penjelasan Setiap Bagian & Langkah Praktikum
 
 ### Bagian 1: Pengujian `include` dan `require` (`lab9_php_modular/`)
 - File `lab9_php_modular/pesan.php` mencetak teks sederhana, lalu dipanggil dari `lab9_php_modular/uji-include.php` menggunakan `include __DIR__ . '/pesan.php';`.
@@ -194,12 +117,3 @@ Seluruh halaman CRUD dari Praktikum 8 dipindahkan ke `modules/user/` dan seluruh
 | 5 | URL rewrite `.htaccess` menampilkan error 404 | `mod_rewrite` atau `AllowOverride All` pada Apache belum diaktifkan | Mengaktifkan `mod_rewrite` dan mengubah `AllowOverride None` menjadi `AllowOverride All` di `httpd.conf`, lalu restart Apache |
 | 6 | Halaman selalu menampilkan `404 - Halaman tidak ditemukan` | Nilai parameter `page` belum terdaftar di array `$routes` atau terjadi salah penulisan | Menyamakan penulisan parameter `page` pada tautan dengan kunci pada `$routes` di `index.php` |
 
----
-
-## 8. Lampiran Screenshot Pengujian (Bagian M.3)
-Berikut daftar screenshot yang disertakan pada laporan praktikum:
-1. **Struktur Direktori Project**: Tampilan susunan folder `Lab9Web` (`config/`, `views/`, `helpers/`, `modules/`, `assets/`, `lab9_php_modular/`, `index.php`, `.htaccess`).
-2. **Template Multi-Halaman**: Tampilan `home.php`, `about.php`, `profil.php`, `kontak.php`, serta template bersama `views/header.php` dan `views/footer.php`.
-3. **Penggunaan Function**: Hasil pemanggilan function dari `helpers/functions.php` pada halaman `dashboard` dan `user/list`.
-4. **Routing, Active Navigation, & Halaman 404**: Pengujian `index.php?page=dashboard`, `index.php?page=user/list`, akses rute tidak dikenal (`index.php?page=admin/rahasia` -> 404), pembatasan akses ke login, serta URL rewrite `.htaccess`.
-5. **Hasil Pengujian CRUD & Pesan Flash**: Tampilan daftar barang, form tambah barang, form ubah barang, konfirmasi hapus data, serta pesan flash sukses/gagal setelah setiap operasi.
